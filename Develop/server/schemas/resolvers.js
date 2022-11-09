@@ -21,3 +21,31 @@ Mutation: {
 
             return { token, user};
 },
+login: async(parent, { email, password }) => {
+    const user = await User.findOne({ email });
+
+        if (!user) {
+            throw new AuthenticationError('Incorrect credentials');
+        }
+        const correctPw = await user.isCorrectPassword(password);
+
+        if (!correctPw) {
+            throw new AuthenticationError('Incorrect credentials');
+        }
+
+        const token = signToken(user);
+
+        return { token, user };
+}, 
+saveBook: async(parent, { BookData }, context) => {
+    if (context.user) {
+        const updateSaveBook = await User.findOneAndUpdate(
+        { _id: context.user._id },
+        { $push: { savedBooks: BookData } },
+        { new: true, runValidators: true }
+        );
+            return updateSaveBook;
+
+    }
+    throw new AuthenticationError('You need to be loggin in.');
+},
