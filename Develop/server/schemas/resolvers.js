@@ -49,3 +49,20 @@ saveBook: async(parent, { BookData }, context) => {
     }
     throw new AuthenticationError('You need to be loggin in.');
 },
+removeBook: async(parent, { bookId }, context) => {
+    if (context.user) {
+        const updateSaveBook = await User.findOneAndUpdate(
+        { _id: context.user.id },
+        { $pull: { savedBooks: { bookId } } },
+        {new: true }
+    );
+        return updateSaveBook
+    }
+        throw new AuthenticationError('You need to be logged in');
+    
+    }
+}
+};
+
+
+module.exports = resolvers;
